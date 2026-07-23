@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dulce et Decorum Est — Sequence the Gas Attack</title>
+<style>
+  :root {
+    --navy: #002147;
+    --blue: #1f5a8a;
+    --pale: #f7fbff;
+    --gold: #ffc72c;
+    --green: #2f6f44;
+    --red: #a93636;
+    --border: #c7d5e2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 18px;
+    font-family: Arial, sans-serif;
+    color: #17212b;
+    background: #ffffff;
+  }
+
+  .activity {
+    max-width: 960px;
+    margin: 0 auto;
+    border: 2px solid var(--blue);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .header {
+    background: linear-gradient(to right, var(--navy), #003366);
+    color: white;
+    padding: 20px 24px;
+  }
+
+  .header h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+  }
+
+  .header p {
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .content {
+    background: var(--pale);
+    padding: 22px;
+  }
+
+  .instructions {
+    background: #fff8dc;
+    border-left: 5px solid var(--gold);
+    padding: 14px;
+    border-radius: 7px;
+    margin-bottom: 18px;
+  }
+
+  .instructions p { margin: 0; }
+
+  .event-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .event {
+    display: grid;
+    grid-template-columns: 42px 1fr 94px;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 9px;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .event:active { cursor: grabbing; }
+
+  .event.dragging {
+    opacity: 0.45;
+    border-style: dashed;
+  }
+
+  .event.correct {
+    border-color: var(--green);
+    background: #eef8f1;
+  }
+
+  .event.incorrect {
+    border-color: var(--red);
+    background: #fff1f1;
+  }
+
+  .number {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--navy);
+    color: white;
+    font-weight: bold;
+  }
+
+  .event-text {
+    line-height: 1.35;
+  }
+
+  .move-controls {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  .move-btn {
+    width: 38px;
+    height: 34px;
+    border: 1px solid var(--blue);
+    border-radius: 6px;
+    background: white;
+    color: var(--navy);
+    font-size: 17px;
+    cursor: pointer;
+  }
+
+  .move-btn:hover,
+  .move-btn:focus {
+    background: #e8f1fa;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .action-btn {
+    border: 0;
+    border-radius: 7px;
+    padding: 11px 18px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+  }
+
+  #checkBtn {
+    background: var(--navy);
+    color: white;
+  }
+
+  #resetBtn {
+    background: var(--gold);
+    color: var(--navy);
+  }
+
+  #showBtn {
+    background: white;
+    border: 2px solid var(--blue);
+    color: var(--navy);
+  }
+
+  #feedback {
+    margin-top: 16px;
+    padding: 13px;
+    border-radius: 7px;
+    background: white;
+    border-left: 5px solid var(--blue);
+    min-height: 48px;
+  }
+
+  .quotation-task {
+    margin-top: 22px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 16px;
+  }
+
+  .quotation-task h2 {
+    color: var(--navy);
+    font-size: 19px;
+    margin-top: 0;
+  }
+
+  .quotation-task textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px;
+    border: 1px solid #9eb3c5;
+    border-radius: 7px;
+    font: inherit;
+    resize: vertical;
+  }
+
+  @media (max-width: 620px) {
+    body { padding: 8px; }
+    .content { padding: 14px; }
+    .event {
+      grid-template-columns: 36px 1fr;
+    }
+    .move-controls {
+      grid-column: 1 / -1;
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+<body>
+<section class="activity" aria-labelledby="activity-title">
+  <div class="header">
+    <h1 id="activity-title">Sequence the Gas Attack</h1>
+    <p><em>Dulce et Decorum Est</em> — Wilfred Owen</p>
+  </div>
+
+  <div class="content">
+    <div class="instructions">
+      <p><strong>Your task:</strong> Drag the event cards into chronological order. You can also use the arrow buttons. Select <strong>Check my order</strong> when finished.</p>
+    </div>
+
+    <ol id="eventList" class="event-list" aria-label="Events to place in chronological order"></ol>
+
+    <div class="actions">
+      <button id="checkBtn" class="action-btn" type="button">Check my order</button>
+      <button id="resetBtn" class="action-btn" type="button">Shuffle and reset</button>
+      <button id="showBtn" class="action-btn" type="button">Show correct order</button>
+    </div>
+
+    <div id="feedback" aria-live="polite">
+      Arrange all eight events, then check your answer.
+    </div>
+
+    <div class="quotation-task">
+      <h2>Extension: Support the sequence with evidence</h2>
+      <p>Choose one event and add a quotation from the poem that confirms it.</p>
+      <textarea aria-label="Quotation and explanation" placeholder="Example: The sudden gas attack is shown by Owen's urgent warning, ‘Gas! GAS! Quick, boys!’"></textarea>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const correctEvents = [
+    { id: 1, text: "The soldiers move slowly through difficult conditions." },
+    { id: 2, text: "The exhausted soldiers barely notice the danger around them." },
+    { id: 3, text: "A gas attack suddenly begins." },
+    { id: 4, text: "The soldiers panic and struggle to fit their gas masks." },
+    { id: 5, text: "One soldier fails to protect himself and begins to suffocate." },
+    { id: 6, text: "The speaker watches the soldier appear to drown in the gas." },
+    { id: 7, text: "The speaker continues to relive the soldier’s death in his dreams." },
+    { id: 8, text: "Owen directly challenges people who present war as glorious." }
+  ];
+
+  const list = document.getElementById("eventList");
+  const feedback = document.getElementById("feedback");
+  let draggedItem = null;
+
+  function shuffled(items) {
+    const copy = [...items];
+    do {
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+    } while (copy.every((item, index) => item.id === correctEvents[index].id));
+    return copy;
+  }
+
+  function render(items) {
+    list.innerHTML = "";
+
+    items.forEach((item, index) => {
+      const li = document.createElement("li");
+      li.className = "event";
+      li.draggable = true;
+      li.dataset.id = item.id;
+
+      li.innerHTML = `
+        <span class="number">${index + 1}</span>
+        <span class="event-text">${item.text}</span>
+        <span class="move-controls">
+          <button class="move-btn up" type="button" aria-label="Move this event up">↑</button>
+          <button class="move-btn down" type="button" aria-label="Move this event down">↓</button>
+        </span>
+      `;
+
+      li.addEventListener("dragstart", () => {
+        draggedItem = li;
+        li.classList.add("dragging");
+      });
+
+      li.addEventListener("dragend", () => {
+        li.classList.remove("dragging");
+        draggedItem = null;
+        updateNumbers();
+        clearMarking();
+      });
+
+      li.addEventListener("dragover", event => {
+        event.preventDefault();
+        if (!draggedItem || draggedItem === li) return;
+        const rect = li.getBoundingClientRect();
+        const after = event.clientY > rect.top + rect.height / 2;
+        list.insertBefore(draggedItem, after ? li.nextSibling : li);
+      });
+
+      li.querySelector(".up").addEventListener("click", () => {
+        const previous = li.previousElementSibling;
+        if (previous) list.insertBefore(li, previous);
+        updateNumbers();
+        clearMarking();
+      });
+
+      li.querySelector(".down").addEventListener("click", () => {
+        const next = li.nextElementSibling;
+        if (next) list.insertBefore(next, li);
+        updateNumbers();
+        clearMarking();
+      });
+
+      list.appendChild(li);
+    });
+
+    updateNumbers();
+  }
+
+  function updateNumbers() {
+    [...list.children].forEach((item, index) => {
+      item.querySelector(".number").textContent = index + 1;
+    });
+  }
+
+  function clearMarking() {
+    [...list.children].forEach(item => {
+      item.classList.remove("correct", "incorrect");
+    });
+    feedback.textContent = "Order changed. Select “Check my order” when ready.";
+  }
+
+  function checkOrder() {
+    const items = [...list.children];
+    let correctCount = 0;
+
+    items.forEach((item, index) => {
+      const isCorrect = Number(item.dataset.id) === correctEvents[index].id;
+      item.classList.toggle("correct", isCorrect);
+      item.classList.toggle("incorrect", !isCorrect);
+      if (isCorrect) correctCount++;
+    });
+
+    if (correctCount === correctEvents.length) {
+      feedback.innerHTML = "<strong>Excellent!</strong> All eight events are in the correct chronological order.";
+    } else {
+      feedback.innerHTML = `<strong>${correctCount} of ${correctEvents.length} positions are correct.</strong> Green cards are correctly placed. Reconsider the red cards and try again.`;
+    }
+  }
+
+  function showCorrectOrder() {
+    render(correctEvents);
+    [...list.children].forEach(item => item.classList.add("correct"));
+    feedback.innerHTML = "<strong>Correct order displayed.</strong> Refresh the Canvas page or select “Shuffle and reset” to try again.";
+  }
+
+  document.getElementById("checkBtn").addEventListener("click", checkOrder);
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    render(shuffled(correctEvents));
+    feedback.textContent = "The cards have been shuffled. Arrange them into chronological order.";
+  });
+  document.getElementById("showBtn").addEventListener("click", showCorrectOrder);
+
+  render(shuffled(correctEvents));
+})();
+</script>
+</body>
+</html>
